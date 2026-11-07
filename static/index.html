@@ -196,9 +196,47 @@
       </div>
     </section>
 
+    <!-- ============ AI INSIGHTS ============ -->
     <section id="screen-insights" class="screen" hidden>
       <h2>AI Insights</h2>
-      <p class="muted">AI insights and WhatsApp reminders arrive in stage 5 (model: <code id="ai-model">…</code>).</p>
+      <div class="privacy-note">
+        <p><strong>Only numbers are sent to the AI:</strong> counts, totals, averages and days since
+          last visit. No customer names, phone numbers or staff names. Names are added to messages
+          later, here on this laptop.</p>
+        <details id="preview-box" class="table-view">
+          <summary>Show exactly what will be sent</summary>
+          <div id="preview-body" class="preview-body">Loading…</div>
+        </details>
+      </div>
+
+      <div class="insights-actions">
+        <button id="btn-insights" class="btn">Get AI insights</button>
+        <p class="hint">Each press is one paid AI request (model <code id="ai-model">…</code>). It takes about 10–30 seconds.</p>
+      </div>
+      <p id="insights-status" class="form-message" role="status" hidden></p>
+
+      <div id="insights-result" hidden>
+        <p id="insights-headline" class="insights-headline"></p>
+        <ol id="insights-list" class="insights-list"></ol>
+        <p id="insights-meta" class="hint"></p>
+      </div>
+
+      <!-- ---------- WhatsApp reminders ---------- -->
+      <h2 class="section-title">WhatsApp reminders <span id="rem-count" class="chip-count"></span></h2>
+      <p id="rem-safety" class="hint"></p>
+
+      <div class="field template-field">
+        <label for="rem-template">Message (edit it if you like; every message below updates as you type)</label>
+        <textarea id="rem-template" rows="3" maxlength="600"></textarea>
+        <small class="hint">Blanks: <code>{name}</code> first name · <code>{service}</code> usual service ·
+          <code>{salon}</code> salon name · <code>{days}</code> days since last visit.
+          <span id="rem-source"></span>
+          <button id="rem-reset" class="link-btn" type="button">Undo my edits</button></small>
+        <small id="rem-template-warning" class="field-error"></small>
+      </div>
+
+      <ul id="rem-list" class="rem-list"></ul>
+      <p id="rem-empty" class="muted" hidden>No overdue regulars right now. Nice!</p>
     </section>
   </main>
 
@@ -211,5 +249,6 @@
   <script src="/static/visit-form.js"></script>
   <script src="/static/customers.js"></script>
   <script src="/static/dashboard.js"></script>
+  <script src="/static/insights.js"></script>
 </body>
 </html>

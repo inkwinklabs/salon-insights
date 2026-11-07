@@ -339,3 +339,78 @@ code { background: var(--brand-soft); padding: 1px 5px; border-radius: 4px; }
 .table-view table { margin-top: 6px; }
 .chart-caption { margin: 6px 0 0; font-size: 0.85rem; color: var(--text); }
 .kpi-cta { color: var(--brand); font-weight: 600; }
+
+/* ================================================================ AI insights */
+.privacy-note {
+  background: var(--good-soft);
+  border: 1px solid #c7e6d3;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
+.privacy-note p { margin: 0 0 4px; }
+.preview-body pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 320px;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.8rem;
+}
+.insights-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.insights-headline { font-size: 1.15rem; font-weight: 600; margin: 14px 0 10px; }
+.insights-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.insight {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: #fff;
+}
+.insight-high { border-left-color: var(--brand); }
+.insight-medium { border-left-color: var(--chart-light); }
+.insight-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.insight h3 { margin: 0 0 4px; font-size: 1rem; }
+.insight p { margin: 4px 0 0; }
+.insight-action { background: var(--brand-soft); border-radius: 6px; padding: 6px 10px; }
+.badge-priority-high   { background: var(--brand); color: #fff; }
+.badge-priority-medium { background: var(--brand-soft); color: var(--brand); }
+.badge-priority-low    { background: #ece9e4; color: var(--muted); }
+
+/* ================================================================ WhatsApp reminders */
+.section-title { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--border); }
+.template-field { margin: 10px 0 14px; }
+.template-field textarea {
+  font: inherit;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  resize: vertical;
+}
+.template-field textarea:focus { outline: 2px solid var(--brand); outline-offset: 1px; }
+.link-btn {
+  border: 0;
+  background: none;
+  color: var(--brand);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+.rem-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.rem-item { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; background: #fff; }
+.rem-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+.rem-buttons { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.rem-message {
+  margin: 8px 0 0;
+  background: #f3f9f4;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.92rem;
+}
+/* WhatsApp-style green, darkened so white text is easy to read */
+.btn-whatsapp { background: #128c4a; text-decoration: none; display: inline-block; }
+.btn-whatsapp:hover { background: #0e723c; }
