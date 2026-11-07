@@ -43,6 +43,18 @@ python3 scripts/make_demo_data.py --clear  # empty demo data
 Demo phone numbers start with 5, which no Indian mobile number does, so a
 WhatsApp link can never message a real person.
 
+## AI insights and WhatsApp reminders
+
+1. Copy `.env.example` to `.env` and put your Anthropic API key after `ANTHROPIC_API_KEY=`.
+   (`.env` is never committed to git.)
+2. Open the **AI Insights** tab and press **Get AI insights**. Only numbers are sent,
+   with no names or phone numbers. "Show exactly what will be sent" lets you check.
+3. Below the insights, each overdue regular has an **Open WhatsApp** button. It opens
+   WhatsApp with a friendly message already filled in; you press Send yourself.
+
+Each press of "Get AI insights" is one paid request (about a cent or two).
+The model is set in `settings.toml` under `[ai]`.
+
 ## Change salon name, services, prices or staff
 
 Edit `settings.toml`, then restart the app. The same file sets when a customer
@@ -61,3 +73,4 @@ The tests use throwaway databases, so they never touch your real or demo data.
 
 - `PLAN.md`: why we picked these tools and how the pieces fit
 - `CLAUDE.md`: project rules (privacy and safety)
+- `READY_TO_SELL.md`: what's needed before selling this to a real salon

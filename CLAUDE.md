@@ -12,6 +12,9 @@ These rules apply to anyone (human or AI) working in this project.
    Only aggregated numbers (counts, averages, days since last visit, service names,
    weekdays) may leave the laptop. Names are merged into AI-written message
    templates *locally*, after the AI reply comes back.
+   Everything sent to the AI goes through `insights.build_ai_summary()` and
+   `insights.check_no_personal_data()`. Never bypass that check, and never send
+   staff names either.
 3. **Never print personal details:** no real names, emails or machine hostnames
    in code, logs, commits, docs or terminal output. Demo data uses invented
    names and obviously fake phone numbers.
@@ -35,4 +38,5 @@ These rules apply to anyone (human or AI) working in this project.
 - Keep code beginner-friendly: short functions, plain names, comments that
   explain *why*.
 - Small, well-named commits. Do not change the git author name or email.
+- Tests never call the real AI: replace `insights.ask_claude` with a fake (see `tests/test_insights.py`).
 - Work in stages (see `PLAN.md`) and stop for review after each stage.
