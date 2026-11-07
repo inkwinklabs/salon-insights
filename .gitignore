@@ -11,3 +11,5 @@ data/*.db
 data/*.db-journal
 data/*.db-wal
 data/*.db-shm
+# Remembers whether the app is in demo or real mode (per laptop)
+data/mode.txt

@@ -14,22 +14,13 @@ Start it with:  python3 start.py
 
 import sys
 import threading
-import tomllib
 import webbrowser
-from pathlib import Path
 
 from flask import Flask, jsonify, send_from_directory
 
-BASE_DIR = Path(__file__).resolve().parent
-SETTINGS_FILE = BASE_DIR / "settings.toml"
+from settings import BASE_DIR, load_settings
+
 STATIC_DIR = BASE_DIR / "static"
-
-
-def load_settings() -> dict:
-    """Read settings.toml. We read it fresh each time so edits show up after a restart."""
-    with open(SETTINGS_FILE, "rb") as f:
-        return tomllib.load(f)
-
 
 app = Flask(__name__, static_folder=str(STATIC_DIR), static_url_path="/static")
 
