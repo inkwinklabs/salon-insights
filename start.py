@@ -38,13 +38,13 @@ def main() -> None:
         sys.exit("Please install Python 3.11 or newer (https://www.python.org/downloads/).")
 
     if not venv_python().exists():
-        print("First run: creating a private library folder (.venv) ...")
+        print("First run: creating a private library folder (.venv) ...", flush=True)
         venv.create(VENV_DIR, with_pip=True)
 
     fingerprint = hashlib.sha256(REQUIREMENTS.read_bytes()).hexdigest()
     already = INSTALLED_STAMP.read_text() if INSTALLED_STAMP.exists() else ""
     if already != fingerprint:
-        print("Installing libraries (needs internet, about a minute) ...")
+        print("Installing libraries (needs internet, about a minute) ...", flush=True)
         subprocess.check_call(
             [str(venv_python()), "-m", "pip", "install", "--quiet", "-r", str(REQUIREMENTS)]
         )
