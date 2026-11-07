@@ -170,6 +170,15 @@ def customer_visit_rows() -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def visit_lines() -> list[dict]:
+    """Every service line (no names or phones), oldest first. Used by the dashboard."""
+    with open_db() as conn:
+        rows = conn.execute(
+            "SELECT customer_id, visit_date, service, price FROM visits ORDER BY visit_date, id"
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
 def visits_for_customer(customer_id: int) -> list[dict]:
     """One customer's history, newest first."""
     with open_db() as conn:

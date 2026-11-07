@@ -20,7 +20,7 @@ from datetime import date
 from flask import Flask, jsonify, request, send_from_directory
 
 import db
-from analysis import build_customer_list
+from analysis import PERIODS, build_customer_list, build_dashboard
 from scripts.make_demo_data import load_demo_data
 from settings import BASE_DIR, load_settings
 from validation import normalise_phone, validate_visit
@@ -142,6 +142,21 @@ def api_customer_lookup():
     if not customer:
         return jsonify(found=False, valid=True)
     return jsonify(found=True, valid=True, **customer)
+
+
+@app.get("/api/dashboard")
+def api_dashboard():
+    """Dashboard numbers for one period: ?period=30 | 90 | 182 | all (default all)."""
+    period = request.args.get("period", "all")
+    if period not in PERIODS:
+        return jsonify(error="period must be one of: " + ", ".join(PERIODS)), 400
+    today = date.today()
+    settings = load_settings()
+    customers = build_customer_list(db.customer_visit_rows(), today, settings["reminders"])
+    overdue_now = sum(1 for c in customers if c["status"] == "overdue")
+    result = build_dashboard(db.visit_lines(), today, period, overdue_now)
+    result["periods"] = [{"key": k, "label": label} for k, (label, _) in PERIODS.items()]
+    return jsonify(result)
 
 
 @app.get("/api/customers/<int:customer_id>/visits")
