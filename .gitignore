@@ -1,0 +1,13 @@
+# Secrets: never commit these
+.env
+
+# Python's private library folder (recreated by start.py)
+.venv/
+__pycache__/
+*.pyc
+
+# Databases hold customer data and are created on your laptop, not stored in git
+data/*.db
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
