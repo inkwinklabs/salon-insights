@@ -45,7 +45,17 @@ WhatsApp link can never message a real person.
 
 ## Change salon name, services, prices or staff
 
-Edit `settings.toml`, then restart the app.
+Edit `settings.toml`, then restart the app. The same file sets when a customer
+counts as a **regular** (`min_visits_for_regular`) and when they're **overdue**
+(`overdue_factor`: how many times their usual gap between visits).
+
+## Check that everything works
+
+```bash
+.venv/bin/python -m unittest        # Windows: .venv\Scripts\python -m unittest
+```
+
+The tests use throwaway databases, so they never touch your real or demo data.
 
 ## More
 

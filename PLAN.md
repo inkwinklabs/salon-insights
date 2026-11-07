@@ -82,7 +82,7 @@ comments, so an owner can edit it in Notepad.
 2. ✅ Database design + sample data generator (with deliberate patterns: a quiet weekday,
    overdue regulars, a high-value service, one-time customers) + load/clear demo data
    + Real/Demo switch with a DEMO MODE banner
-3. Visit form + customer list
+3. ✅ Visit form + customer list (search, filters, sorting, visit history; same-day services = one visit)
 4. Dashboard + charts (Chart.js, saved inside the project so it works offline)
 5. AI insights + WhatsApp reminders + `READY_TO_SELL.md`
 6. Bug fixes, polish, final walkthrough

@@ -45,19 +45,83 @@
       </div>
     </section>
 
+    <!-- ============ LOG VISIT ============ -->
     <section id="screen-log" class="screen">
       <h2>Log a visit</h2>
-      <p class="muted">The visit form arrives in stage 3. Services and prices below are read from <code>settings.toml</code>:</p>
-      <table class="table">
-        <thead><tr><th>Service</th><th class="num">Price</th><th class="num">Usually back after</th></tr></thead>
-        <tbody id="services-body"><tr><td colspan="3">Loading…</td></tr></tbody>
-      </table>
-      <p class="muted">Staff: <span id="staff-list">…</span></p>
+      <!-- novalidate: we show our own friendlier messages instead of the browser's -->
+      <form id="visit-form" class="form-grid" novalidate>
+        <div class="field">
+          <label for="f-phone">Phone</label>
+          <input id="f-phone" name="phone" type="tel" inputmode="numeric" autocomplete="off"
+                 placeholder="10-digit mobile" required>
+          <small id="phone-hint" class="hint"></small>
+          <small class="field-error" data-error-for="phone"></small>
+        </div>
+
+        <div class="field">
+          <label for="f-name">Customer name</label>
+          <input id="f-name" name="name" autocomplete="off" maxlength="60" required>
+          <small class="field-error" data-error-for="name"></small>
+        </div>
+
+        <div class="field">
+          <label for="f-service">Service</label>
+          <select id="f-service" name="service" required></select>
+          <small class="field-error" data-error-for="service"></small>
+        </div>
+
+        <div class="field">
+          <label for="f-price">Price (<span class="currency">₹</span>)</label>
+          <input id="f-price" name="price" type="number" inputmode="numeric" min="0" step="1" required>
+          <small class="hint">Filled in from the service; change it for a discount or extra.</small>
+          <small class="field-error" data-error-for="price"></small>
+        </div>
+
+        <div class="field">
+          <label for="f-date">Date</label>
+          <input id="f-date" name="visit_date" type="date" required>
+          <small class="field-error" data-error-for="visit_date"></small>
+        </div>
+
+        <div class="field">
+          <label for="f-staff">Staff</label>
+          <select id="f-staff" name="staff" required></select>
+          <small class="field-error" data-error-for="staff"></small>
+        </div>
+
+        <div class="form-footer">
+          <button type="submit" class="btn">Save visit</button>
+          <p class="hint">Two services in one visit? Save each one. Services on the same day count as one visit.</p>
+        </div>
+        <p id="form-message" class="form-message" role="status" hidden></p>
+      </form>
     </section>
 
+    <!-- ============ CUSTOMERS ============ -->
     <section id="screen-customers" class="screen" hidden>
       <h2>Customers</h2>
-      <p class="muted">Customer list arrives in stage 3.</p>
+      <div class="toolbar">
+        <input id="cust-search" type="search" placeholder="Search name or phone" aria-label="Search customers">
+        <div id="cust-filters" class="chips" role="group" aria-label="Show"></div>
+      </div>
+      <p id="cust-rule" class="hint"></p>
+      <div class="table-wrap">
+        <table class="table customers-table">
+          <thead>
+            <tr>
+              <th><button class="sort" data-sort="name">Name</button></th>
+              <th>Phone</th>
+              <th class="num"><button class="sort" data-sort="visits">Visits</button></th>
+              <th><button class="sort" data-sort="days_since">Last visit</button></th>
+              <th class="num"><button class="sort" data-sort="avg_spend">Avg spend</button></th>
+              <th>Usual service</th>
+              <th><button class="sort" data-sort="status">Status</button></th>
+            </tr>
+          </thead>
+          <tbody id="cust-body"></tbody>
+        </table>
+      </div>
+      <p id="cust-empty" class="muted" hidden></p>
     </section>
 
     <section id="screen-dashboard" class="screen" hidden>
@@ -73,6 +137,9 @@
 
   <p id="error" class="error" hidden></p>
 
+  <!-- Order matters: app.js holds shared helpers the other two use. -->
   <script src="/static/app.js"></script>
+  <script src="/static/visit-form.js"></script>
+  <script src="/static/customers.js"></script>
 </body>
 </html>
