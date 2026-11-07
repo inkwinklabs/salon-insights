@@ -24,6 +24,8 @@ async function loadCustomers() {
   const result = await getJSON("/api/customers");
   customersView.all = result.customers;
   customersView.rules = result.rules;
+  // The open customer may not exist any more (e.g. after switching Real/Demo).
+  if (!customersView.all.some((c) => c.id === customersView.openId)) customersView.openId = null;
   renderCustomers();
 }
 // Reload when the tab opens, and when data changes while it's open.
@@ -35,6 +37,15 @@ dataChangedListeners.push(async () => {
 // ---- Search, filter, sort ----
 document.getElementById("cust-search").addEventListener("input", (e) => {
   customersView.search = e.target.value.trim().toLowerCase();
+  renderCustomers();
+});
+
+// On a phone the column headings are hidden, so a "Sort by" dropdown does the same job.
+// Each choice is "column:direction", e.g. "days_since:asc".
+document.getElementById("cust-sort-mobile").addEventListener("change", (e) => {
+  const [key, direction] = e.target.value.split(":");
+  customersView.sortBy = key;
+  customersView.sortAscending = direction === "asc";
   renderCustomers();
 });
 
@@ -105,6 +116,11 @@ function renderCustomers() {
     searched.filter((c) => customersView.filter === "all" || c.status === customersView.filter)
   );
 
+  // Keep the phone "Sort by" dropdown in step with the chosen sort.
+  const mobileSort = document.getElementById("cust-sort-mobile");
+  const current = `${customersView.sortBy}:${customersView.sortAscending ? "asc" : "desc"}`;
+  if ([...mobileSort.options].some((o) => o.value === current)) mobileSort.value = current;
+
   // Show which column is sorted, and which way.
   document.querySelectorAll(".sort").forEach((btn) => {
     const active = btn.dataset.sort === customersView.sortBy;
@@ -124,12 +140,12 @@ function renderCustomers() {
       <tr class="cust-row ${customersView.openId === c.id ? "open" : ""}" data-id="${c.id}"
           tabindex="0" aria-expanded="${customersView.openId === c.id}">
         <td class="cust-name">${escapeHTML(c.name)}</td>
-        <td class="phone">${escapeHTML(c.phone)}</td>
-        <td class="num">${c.visits}</td>
-        <td>${daysAgo(c.days_since)}<div class="sub">${niceDate(c.last_visit)}</div></td>
-        <td class="num">${money(c.avg_spend)}</td>
-        <td>${escapeHTML(c.usual_service)}</td>
-        <td><span class="badge badge-${c.status}">${STATUS_LABELS[c.status]}</span></td>
+        <td class="phone" data-label="Phone">${escapeHTML(c.phone)}</td>
+        <td class="num" data-label="Visits">${c.visits}</td>
+        <td data-label="Last visit">${daysAgo(c.days_since)}<div class="sub">${niceDate(c.last_visit)}</div></td>
+        <td class="num" data-label="Avg spend">${money(c.avg_spend)}</td>
+        <td data-label="Usual">${escapeHTML(c.usual_service)}</td>
+        <td class="cust-status"><span class="badge badge-${c.status}">${STATUS_LABELS[c.status]}</span></td>
       </tr>
       ${customersView.openId === c.id ? `<tr class="history-row"><td colspan="7" id="history-${c.id}">Loading…</td></tr>` : ""}`
     )

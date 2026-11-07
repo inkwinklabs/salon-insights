@@ -36,7 +36,8 @@ function setChartDefaults() {
     window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 250;
 
   const tip = Chart.defaults.plugins.tooltip;
-  tip.backgroundColor = cssColour("--text");
+  tip.backgroundColor = cssColour("--tooltip-bg");
+  tip.titleColor = tip.bodyColor = tip.footerColor = cssColour("--tooltip-text");
   tip.padding = 10;
   tip.cornerRadius = 6;
   tip.displayColors = false;
@@ -139,6 +140,13 @@ dataChangedListeners.push(async () => {
   if (!document.getElementById("screen-dashboard").hidden) await loadDashboard();
 });
 startUpSteps.push(async () => setChartDefaults());
+
+// Light/dark switched: pick up the new colours and redraw the charts.
+document.addEventListener("themechange", () => {
+  setChartDefaults();
+  // Only if the Dashboard tab is on screen; otherwise it redraws when opened.
+  if (dash.data && !document.getElementById("screen-dashboard").hidden) renderDashboard();
+});
 
 // The period buttons (built from the server's list, so they always match).
 document.getElementById("dash-periods").addEventListener("click", (e) => {

@@ -24,11 +24,74 @@ function setUpForm() {
   staffSelect.innerHTML =
     `<option value="">Who did it?</option>` +
     salon.staff.map((name) => `<option>${escapeHTML(name)}</option>`).join("");
-  dateInput.value = todayISO();
-  dateInput.max = todayISO(); // no future dates
+  setUpDatePicker();
   updatePhonePlaceholder();
 }
 startUpSteps.push(setUpForm);
+
+// ---- The date: Day / Month / Year dropdowns, always day-first ----
+const daySelect = document.getElementById("f-day");
+const monthSelect = document.getElementById("f-month");
+const yearSelect = document.getElementById("f-year");
+const dateReadable = document.getElementById("date-readable");
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July",
+                "August", "September", "October", "November", "December"];
+
+function setUpDatePicker() {
+  daySelect.innerHTML = Array.from({ length: 31 }, (_, i) => `<option>${i + 1}</option>`).join("");
+  monthSelect.innerHTML = MONTHS.map((m, i) => `<option value="${i + 1}">${m}</option>`).join("");
+  const thisYear = new Date().getFullYear();
+  // This year and the two before (for logging older visits from a paper book).
+  yearSelect.innerHTML = [0, 1, 2].map((n) => `<option>${thisYear - n}</option>`).join("");
+  setDate(todayISO());
+}
+
+// Put a "YYYY-MM-DD" date into the three dropdowns.
+function setDate(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  yearSelect.value = String(y);
+  monthSelect.value = String(m);
+  daySelect.value = String(d);
+  syncDate();
+}
+
+// Read the dropdowns, check the date is real and not in the future, and
+// store it in the hidden field that's sent to the server.
+function syncDate() {
+  const y = Number(yearSelect.value), m = Number(monthSelect.value), d = Number(daySelect.value);
+  const date = new Date(y, m - 1, d);
+  const real = date.getMonth() === m - 1; // 31 February rolls over into March, so it isn't real
+  const iso = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+  dateInput.value = real ? iso : "";
+  const today = todayISO();
+
+  if (!real) {
+    dateReadable.textContent = `There's no ${d} ${MONTHS[m - 1]}.`;
+    dateReadable.className = "hint date-warning";
+  } else if (iso > today) {
+    dateReadable.textContent = "That's in the future.";
+    dateReadable.className = "hint date-warning";
+  } else {
+    const words = date.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    const which = iso === today ? " (today)" : iso === daysAgoISO(1) ? " (yesterday)" : "";
+    dateReadable.textContent = words + which;
+    dateReadable.className = "hint";
+  }
+}
+[daySelect, monthSelect, yearSelect].forEach((s) => s.addEventListener("change", syncDate));
+
+function daysAgoISO(n) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+}
+
+document.querySelectorAll("[data-days-ago]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    setDate(daysAgoISO(Number(btn.dataset.daysAgo)));
+    btn.dispatchEvent(new Event("change", { bubbles: true })); // clears an old date message
+  });
+});
 
 // In demo mode, remind people to use a fake number starting with 5.
 function updatePhonePlaceholder() {
@@ -110,7 +173,7 @@ function clearFieldError(event) {
   const field = event.target.closest(".field");
   if (!field) return;
   field.classList.remove("has-error");
-  const error = field.querySelector(".field-error");
+  const error = field.querySelector(".field-error[data-error-for]");
   if (error) error.textContent = "";
   // Everything fixed? Then the "please fix" box can go too.
   if (!form.querySelector(".has-error") && formMessage.classList.contains("bad")) {

@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Salon Insights</title>
   <link rel="stylesheet" href="/static/style.css">
+  <script>
+    // Apply the saved theme (light / dark) before the page is drawn, so it doesn't flash.
+    // "Auto" (nothing saved) follows the laptop's own light/dark setting.
+    try {
+      const saved = localStorage.getItem("theme");
+      if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
+    } catch (e) { /* storage blocked: just follow the laptop */ }
+  </script>
 </head>
 <body>
   <header class="topbar">
@@ -13,9 +21,12 @@
       <p class="subtitle">Customer Insights<span id="salon-city"></span></p>
     </div>
     <!-- Switch between the salon's real data and the sample data -->
-    <div class="mode-switch" role="group" aria-label="Which data to show">
-      <button class="mode-btn" data-mode="real">Real</button>
-      <button class="mode-btn" data-mode="demo">Demo</button>
+    <div class="topbar-controls">
+      <button id="theme-btn" class="theme-btn" type="button" aria-label="Change theme">Theme: Auto</button>
+      <div class="mode-switch" role="group" aria-label="Which data to show">
+        <button class="mode-btn" data-mode="real">Real</button>
+        <button class="mode-btn" data-mode="demo">Demo</button>
+      </div>
     </div>
   </header>
 
@@ -78,8 +89,22 @@
         </div>
 
         <div class="field">
-          <label for="f-date">Date</label>
-          <input id="f-date" name="visit_date" type="date" required>
+          <!-- Day / Month / Year dropdowns instead of the browser's date box,
+               which shows 11/07/2026 (month first) on many computers. A month
+               written as a word can't be misread. -->
+          <label for="f-day">Date</label>
+          <div class="date-row" role="group" aria-label="Visit date">
+            <select id="f-day" aria-label="Day"></select>
+            <select id="f-month" aria-label="Month"></select>
+            <select id="f-year" aria-label="Year"></select>
+          </div>
+          <div class="date-quick">
+            <button type="button" class="chip" data-days-ago="0">Today</button>
+            <button type="button" class="chip" data-days-ago="1">Yesterday</button>
+            <small id="date-readable" class="hint"></small>
+          </div>
+          <!-- What's actually sent to the server, as 2026-11-07 -->
+          <input type="hidden" id="f-date" name="visit_date">
           <small class="field-error" data-error-for="visit_date"></small>
         </div>
 
@@ -102,6 +127,13 @@
       <h2>Customers</h2>
       <div class="toolbar">
         <input id="cust-search" type="search" placeholder="Search name or phone" aria-label="Search customers">
+        <select id="cust-sort-mobile" class="phone-only" aria-label="Sort by">
+          <option value="days_since:asc">Sort: most recent visit</option>
+          <option value="days_since:desc">Sort: longest since visit</option>
+          <option value="name:asc">Sort: name A–Z</option>
+          <option value="visits:desc">Sort: most visits</option>
+          <option value="avg_spend:desc">Sort: highest spend</option>
+        </select>
         <div id="cust-filters" class="chips" role="group" aria-label="Show"></div>
       </div>
       <p id="cust-rule" class="hint"></p>

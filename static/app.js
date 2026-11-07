@@ -28,10 +28,14 @@ async function postJSON(url, body = {}) {
 }
 
 // Turn text into safe HTML, so a name like "<b>" shows as text, not as code.
+// Quotes are escaped too, so text is also safe inside attributes like value="...".
 function escapeHTML(text) {
-  const div = document.createElement("div");
-  div.textContent = String(text ?? "");
-  return div.innerHTML;
+  return String(text ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 // ₹1,41,330 (Indian-style commas).
@@ -78,6 +82,36 @@ function openTab(name) {
 
 document.querySelectorAll(".tab").forEach((tab) => {
   tab.addEventListener("click", () => openTab(tab.dataset.screen));
+});
+
+// ================================================================ theme (light / dark)
+
+// Auto → Light → Dark → Auto. "Auto" follows the laptop's own setting.
+const THEMES = ["auto", "light", "dark"];
+function currentTheme() {
+  return document.documentElement.dataset.theme || "auto";
+}
+function applyTheme(theme) {
+  if (theme === "auto") delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = theme;
+  try {
+    if (theme === "auto") localStorage.removeItem("theme");
+    else localStorage.setItem("theme", theme);
+  } catch (e) { /* storage blocked: the choice just won't be remembered */ }
+  const label = { auto: "Auto", light: "Light", dark: "Dark" }[theme];
+  document.getElementById("theme-btn").textContent = "Theme: " + label;
+  // Charts are drawn on a canvas, so they must be redrawn in the new colours.
+  document.dispatchEvent(new Event("themechange"));
+}
+document.getElementById("theme-btn").addEventListener("click", () => {
+  const next = THEMES[(THEMES.indexOf(currentTheme()) + 1) % THEMES.length];
+  applyTheme(next);
+});
+document.getElementById("theme-btn").textContent =
+  "Theme: " + { auto: "Auto", light: "Light", dark: "Dark" }[currentTheme()];
+// If the laptop itself switches between light and dark, redraw too.
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+  document.dispatchEvent(new Event("themechange"));
 });
 
 // ================================================================ settings
