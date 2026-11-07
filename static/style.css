@@ -13,6 +13,13 @@
   --good: #1f6f43;
   --good-soft: #e3f3e9;
   --danger-soft: #fdecea;
+  /* Chart colours: one hue (the brand plum) plus a lighter step for part-months.
+     Checked with a colour validator: both clear contrast against the white card. */
+  --chart-main: #8a3b5c;
+  --chart-light: #c27a99;
+  --chart-hover: #6f2d49;
+  --chart-grid: #ece8e2;
+  --chart-axis: #d6d0c7;
 }
 
 * { box-sizing: border-box; }
@@ -244,3 +251,91 @@ code { background: var(--brand-soft); padding: 1px 5px; border-radius: 4px; }
 .history-row > td { background: #fbf9f7; padding: 12px 16px; }
 .history p { margin: 0 0 8px; }
 .table-compact th, .table-compact td { padding: 5px 8px; font-size: 0.9rem; }
+
+/* ================================================================ dashboard */
+.dash-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dash-head h2 { margin: 0; }
+#dash-range { margin: 6px 0 14px; }
+/* While new numbers load, the old ones stay, faded (no jumping about). */
+#dash-body { transition: opacity 0.15s; }
+#dash-body.refreshing { opacity: 0.55; }
+
+/* Headline numbers */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* 2 per row on a phone */
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: #fff;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.kpi p { margin: 0; }
+.kpi-label { font-size: 0.85rem; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.kpi-value { font-size: 1.7rem; font-weight: 600; line-height: 1.2; color: var(--text); }
+.kpi-sub { font-size: 0.8rem; color: var(--muted); }
+.kpi-link { cursor: pointer; }
+.kpi-link:hover, .kpi-link:focus-visible { border-color: var(--brand); background: var(--brand-soft); }
+
+/* Thin split bar (repeat vs one-time): 8px, round ends, 2px gap between parts */
+.split-bar { display: flex; gap: 2px; height: 8px; margin: 6px 0 4px; }
+.split-part { border-radius: 999px; min-width: 2px; }
+.key-main { background: var(--chart-main); }
+.key-light { background: var(--chart-light); }
+.key-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin: 0 4px 0 2px;
+  vertical-align: -1px;
+}
+
+/* Chart cards: two side by side on a laptop, one per row on a phone */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.chart-wide { grid-column: 1 / -1; }
+@media (max-width: 760px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+.chart-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  background: #fff;
+  min-width: 0;
+}
+.chart-card h3 { margin: 0 0 2px; font-size: 1rem; }
+.chart-card > .hint { margin-bottom: 10px; }
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+.chart-box { position: relative; width: 100%; } /* Chart.js fills this box */
+.table-view { margin-top: 8px; }
+.table-view summary { cursor: pointer; color: var(--brand); font-size: 0.9rem; }
+.table-view table { margin-top: 6px; }
+.chart-caption { margin: 6px 0 0; font-size: 0.85rem; color: var(--text); }
+.kpi-cta { color: var(--brand); font-weight: 600; }

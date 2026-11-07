@@ -124,9 +124,76 @@
       <p id="cust-empty" class="muted" hidden></p>
     </section>
 
+    <!-- ============ DASHBOARD ============ -->
     <section id="screen-dashboard" class="screen" hidden>
-      <h2>Dashboard</h2>
-      <p class="muted">Charts arrive in stage 4.</p>
+      <div class="dash-head">
+        <h2>Dashboard</h2>
+        <!-- One period choice for everything below, so all numbers agree -->
+        <div id="dash-periods" class="chips" role="group" aria-label="Period"></div>
+      </div>
+      <p id="dash-range" class="hint"></p>
+      <p id="dash-empty" class="muted" hidden></p>
+
+      <div id="dash-body">
+        <div class="kpi-row">
+          <div class="kpi">
+            <p class="kpi-label">Customers</p>
+            <p class="kpi-value" id="kpi-customers"></p>
+            <p class="kpi-sub" id="kpi-customers-sub"></p>
+          </div>
+          <div class="kpi">
+            <p class="kpi-label">Repeat customers</p>
+            <p class="kpi-value" id="kpi-repeat"></p>
+            <!-- Thin bar: repeat vs one-time -->
+            <div class="split-bar" id="kpi-repeat-bar" role="img"></div>
+            <p class="kpi-sub" id="kpi-repeat-sub"></p>
+          </div>
+          <div class="kpi">
+            <p class="kpi-label">Revenue</p>
+            <p class="kpi-value" id="kpi-revenue"></p>
+            <p class="kpi-sub" id="kpi-revenue-sub"></p>
+          </div>
+          <div class="kpi">
+            <p class="kpi-label">Spend per visit</p>
+            <p class="kpi-value" id="kpi-avg"></p>
+            <p class="kpi-sub">average; a visit's services added up</p>
+          </div>
+          <button class="kpi kpi-link" id="kpi-overdue" type="button">
+            <span class="kpi-label">Overdue regulars</span>
+            <span class="kpi-value" id="kpi-overdue-value"></span>
+            <span class="kpi-sub">as of today · <span class="kpi-cta">see&nbsp;who&nbsp;→</span></span>
+          </button>
+        </div>
+
+        <div class="chart-grid">
+          <article class="chart-card">
+            <h3>Visits by day of the week</h3>
+            <p class="hint">One visit = one customer on one day. Hover a bar for revenue.</p>
+            <div class="chart-box" style="height: 250px"><canvas id="chart-weekdays" role="img"></canvas></div>
+            <p class="chart-caption" id="caption-weekdays"></p>
+            <details class="table-view"><summary>Show as table</summary><div id="table-weekdays"></div></details>
+          </article>
+
+          <article class="chart-card">
+            <h3>Monthly revenue</h3>
+            <p class="hint"><span class="key-swatch key-light"></span>Lighter bars are part-months: the period covers only some of that month.</p>
+            <div class="chart-box" style="height: 250px"><canvas id="chart-months" role="img"></canvas></div>
+            <p class="chart-caption" id="caption-months"></p>
+            <details class="table-view"><summary>Show as table</summary><div id="table-months"></div></details>
+          </article>
+
+          <article class="chart-card chart-wide">
+            <div class="card-head">
+              <h3>Services</h3>
+              <!-- One measure at a time: revenue and counts have very different scales -->
+              <div id="service-measures" class="chips" role="group" aria-label="Rank services by"></div>
+            </div>
+            <p class="hint" id="service-hint"></p>
+            <div class="chart-box" id="services-box"><canvas id="chart-services" role="img"></canvas></div>
+            <details class="table-view"><summary>Show as table</summary><div id="table-services"></div></details>
+          </article>
+        </div>
+      </div>
     </section>
 
     <section id="screen-insights" class="screen" hidden>
@@ -137,9 +204,12 @@
 
   <p id="error" class="error" hidden></p>
 
-  <!-- Order matters: app.js holds shared helpers the other two use. -->
+  <!-- Chart.js draws the charts. It's saved in the project, so no internet is needed. -->
+  <script src="/static/vendor/chart-4.4.7.umd.js"></script>
+  <!-- Order matters: app.js holds shared helpers the others use. -->
   <script src="/static/app.js"></script>
   <script src="/static/visit-form.js"></script>
   <script src="/static/customers.js"></script>
+  <script src="/static/dashboard.js"></script>
 </body>
 </html>
