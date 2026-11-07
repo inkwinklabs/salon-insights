@@ -8,8 +8,12 @@ what to do next with help from AI.
 
 You need Python 3.11 or newer.
 
+**Windows:** double-click **`start.bat`**.
+
+**Mac / Linux** (or Windows from a terminal):
+
 ```bash
-python3 start.py        # Windows: py start.py
+python3 start.py        # Windows terminal: py start.py
 ```
 
 On the first run it creates a private library folder (`.venv`) and installs what it

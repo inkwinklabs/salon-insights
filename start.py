@@ -52,7 +52,11 @@ def main() -> None:
 
     # Run the real app with the private Python, passing on any extra options
     # (for example --no-browser).
-    result = subprocess.call([str(venv_python()), str(ROOT / "app.py"), *sys.argv[1:]], cwd=ROOT)
+    # PYTHONIOENCODING=utf-8 stops Windows terminals crashing on characters like ₹.
+    env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
+    result = subprocess.call(
+        [str(venv_python()), str(ROOT / "app.py"), *sys.argv[1:]], cwd=ROOT, env=env
+    )
     sys.exit(result)
 
 
