@@ -12,7 +12,17 @@
       <h1 id="salon-name">Salon Insights</h1>
       <p class="subtitle">Customer Insights<span id="salon-city"></span></p>
     </div>
+    <!-- Switch between the salon's real data and the sample data -->
+    <div class="mode-switch" role="group" aria-label="Which data to show">
+      <button class="mode-btn" data-mode="real">Real</button>
+      <button class="mode-btn" data-mode="demo">Demo</button>
+    </div>
   </header>
+
+  <!-- Shown only in demo mode, so nobody mistakes sample data for real customers -->
+  <div id="demo-banner" class="demo-banner" hidden>
+    <strong>DEMO MODE</strong>: sample data, not real customers.
+  </div>
 
   <!-- The four main screens. Clicking a tab shows one and hides the rest. -->
   <nav class="tabs" aria-label="Main">
@@ -23,6 +33,18 @@
   </nav>
 
   <main>
+    <!-- A small card showing what data is loaded right now -->
+    <section class="data-card">
+      <div>
+        <h2 class="data-title">Data</h2>
+        <p id="data-summary" class="muted">Loading…</p>
+      </div>
+      <div id="demo-actions" class="actions" hidden>
+        <button id="btn-load-demo" class="btn">Load demo data</button>
+        <button id="btn-clear-demo" class="btn btn-quiet">Clear demo data</button>
+      </div>
+    </section>
+
     <section id="screen-log" class="screen">
       <h2>Log a visit</h2>
       <p class="muted">The visit form arrives in stage 3. Services and prices below are read from <code>settings.toml</code>:</p>

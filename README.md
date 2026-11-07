@@ -24,6 +24,25 @@ Press `Ctrl+C` in the terminal to stop it.
 
 Add `--no-browser` if you don't want a browser tab to open automatically.
 
+## Real data and demo data
+
+The **Real / Demo** switch at the top chooses which data the app shows. They are
+kept in two separate files, so one can never mix with the other:
+
+- `data/salon.db`: your real customers (the app starts here)
+- `data/demo.db`: 80 made-up customers for trying things out. A yellow
+  **DEMO MODE** banner shows while it's in use.
+
+In demo mode, use the **Load demo data** and **Clear demo data** buttons, or from a terminal:
+
+```bash
+python3 scripts/make_demo_data.py          # load (or reload) demo data
+python3 scripts/make_demo_data.py --clear  # empty demo data
+```
+
+Demo phone numbers start with 5, which no Indian mobile number does, so a
+WhatsApp link can never message a real person.
+
 ## Change salon name, services, prices or staff
 
 Edit `settings.toml`, then restart the app.

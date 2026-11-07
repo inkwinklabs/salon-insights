@@ -78,9 +78,10 @@ comments, so an owner can edit it in Notepad.
 
 ## 6. Stages (we stop for review after each one)
 
-1. **Plan, stack, rules (CLAUDE.md), first commit, a page that runs** ← *this stage*
-2. Database design + sample data generator (with deliberate patterns: a quiet weekday,
+1. ✅ Plan, stack, rules (CLAUDE.md), first commit, a page that runs (+ `start.bat` for Windows)
+2. ✅ Database design + sample data generator (with deliberate patterns: a quiet weekday,
    overdue regulars, a high-value service, one-time customers) + load/clear demo data
+   + Real/Demo switch with a DEMO MODE banner
 3. Visit form + customer list
 4. Dashboard + charts (Chart.js, saved inside the project so it works offline)
 5. AI insights + WhatsApp reminders + `READY_TO_SELL.md`
