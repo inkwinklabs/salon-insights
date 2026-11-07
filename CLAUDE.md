@@ -37,6 +37,11 @@ These rules apply to anyone (human or AI) working in this project.
   keeps the door open for an Android app or online version later.
 - Keep code beginner-friendly: short functions, plain names, comments that
   explain *why*.
+- Colours live only as tokens at the top of `static/style.css`, with a light
+  and a dark value. Check new chart colours with a contrast/colour validator.
+- Dates on screen are always day-first ("7 Nov 2026"). Don't use the browser's
+  `<input type="date">`: it shows month-first on many computers.
+- Text put into HTML goes through `escapeHTML()` (it also escapes quotes).
 - Small, well-named commits. Do not change the git author name or email.
 - Tests never call the real AI: replace `insights.ask_claude` with a fake (see `tests/test_insights.py`).
 - Work in stages (see `PLAN.md`) and stop for review after each stage.

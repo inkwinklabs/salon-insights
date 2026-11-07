@@ -24,6 +24,23 @@ Press `Ctrl+C` in the terminal to stop it.
 
 Add `--no-browser` if you don't want a browser tab to open automatically.
 
+## Using the app (a quick tour)
+
+1. **Log visit:** type the customer's phone first. A returning customer's name
+   fills in by itself. Pick the service (the price fills in), the date
+   (Day · Month · Year, or the **Today** / **Yesterday** buttons) and who did it,
+   then **Save visit**.
+2. **Customers:** everyone, with visits, last visit, average spend, usual service
+   and a status: *Regular*, *Overdue*, *Occasional* or *One-time*. Search, filter,
+   sort, and click a customer to see their history. On a phone each customer is a card.
+3. **Dashboard:** headline numbers and charts for any period. Click
+   **Overdue regulars** to jump to those customers. Every chart has a table view.
+4. **AI Insights:** press **Get AI insights** for plain-language suggestions
+   (only numbers are sent), then use **Open WhatsApp** to send each overdue
+   regular a friendly reminder.
+
+**Theme** (top right) switches between Auto (follows the laptop), Light and Dark.
+
 ## Real data and demo data
 
 The **Real / Demo** switch at the top chooses which data the app shows. They are
