@@ -16,7 +16,12 @@ port = 8000
 [ai]
 # Which Claude model writes the insights. Change it here, not in the code.
 model      = "claude-sonnet-5-5"
-max_tokens = 1500
+# How hard the model thinks: "low", "medium" or "high". Higher = slower, costs more.
+effort     = "medium"
+# Upper limit on the reply's length (includes the model's thinking).
+max_tokens = 8000
+# Language for the WhatsApp reminder template, e.g. "English", "Hindi", "Kannada", "Hinglish".
+message_language = "English"
 
 [reminders]
 # A customer counts as a "regular" after this many visits.
@@ -24,6 +29,9 @@ min_visits_for_regular = 3
 # A regular is "overdue" when the days since their last visit are more than
 # their usual gap between visits multiplied by this number (1.5 = 50% late).
 overdue_factor = 1.5
+# Used for WhatsApp reminders until the AI writes one. Blanks the app fills in:
+#   {name} first name · {service} their usual service · {salon} salon name · {days} days since last visit
+default_template = "Hi {name}! It's been a while since your last {service} at {salon}. We'd love to see you again. Reply here to book a time that suits you."
 
 # ── Services ────────────────────────────────────────────────
 # price            = usual price in rupees (can be changed per visit)

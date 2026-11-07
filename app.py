@@ -17,15 +17,21 @@ import threading
 import webbrowser
 from datetime import date
 
+from dotenv import load_dotenv
 from flask import Flask, jsonify, request, send_from_directory
 
 import db
+import insights
 from analysis import PERIODS, build_customer_list, build_dashboard
 from scripts.make_demo_data import load_demo_data
 from settings import BASE_DIR, load_settings
 from validation import normalise_phone, validate_visit
 
 STATIC_DIR = BASE_DIR / "static"
+
+# Read ANTHROPIC_API_KEY from the .env file into this program's settings.
+# (It is only ever passed to the Anthropic library, never printed or shown.)
+load_dotenv(BASE_DIR / ".env")
 
 app = Flask(__name__, static_folder=str(STATIC_DIR), static_url_path="/static")
 
@@ -157,6 +163,75 @@ def api_dashboard():
     result = build_dashboard(db.visit_lines(), today, period, overdue_now)
     result["periods"] = [{"key": k, "label": label} for k, (label, _) in PERIODS.items()]
     return jsonify(result)
+
+
+# ---------------------------------------------------------------- AI insights
+
+@app.get("/api/insights/preview")
+def api_insights_preview():
+    """Exactly what WOULD be sent to the AI, so the owner can check it. Nothing is sent."""
+    settings = load_settings()
+    summary, customers = insights.build_ai_summary(date.today(), settings)
+    text = insights.summary_as_text(summary)
+    try:
+        insights.check_no_personal_data(text, customers)
+        safe = True
+    except insights.PrivacyError:
+        safe = False
+    ai = settings["ai"]
+    return jsonify(
+        model=ai["model"],
+        instructions=insights.SYSTEM_PROMPT.format(language=ai.get("message_language", "English")),
+        summary=text,
+        passed_privacy_check=safe,
+    )
+
+
+@app.get("/api/insights")
+def api_last_insights():
+    """The last saved insights for this mode (no AI call, so no cost)."""
+    return jsonify(result=insights.last_insights())
+
+
+@app.post("/api/insights")
+def api_generate_insights():
+    """Build the numbers-only summary, check it, send it to Claude, save the answer."""
+    try:
+        return jsonify(result=insights.generate_insights(load_settings()))
+    except insights.InsightsError as e:
+        return jsonify(error=str(e)), 503
+
+
+@app.get("/api/reminders")
+def api_reminders():
+    """Overdue regulars + the message template. Names stay on this laptop."""
+    settings = load_settings()
+    customers = build_customer_list(db.customer_visit_rows(), date.today(), settings["reminders"])
+    last_opened = db.last_reminder_dates()
+    saved = insights.last_insights()
+    template = saved["reminder_template"] if saved else settings["reminders"]["default_template"]
+    overdue = sorted((c for c in customers if c["status"] == "overdue"), key=lambda c: -c["days_since"])
+    return jsonify(
+        mode=db.get_mode(),
+        salon=settings["salon"]["name"],
+        template=template,
+        template_source="ai" if saved else "default",
+        default_template=settings["reminders"]["default_template"],
+        customers=[
+            {"id": c["id"], "name": c["name"], "phone": c["phone"], "usual_service": c["usual_service"],
+             "days_since": c["days_since"], "avg_gap": c["avg_gap"], "visits": c["visits"],
+             "last_reminder": last_opened.get(c["id"])}
+            for c in overdue
+        ],
+    )
+
+
+@app.post("/api/reminders/<int:customer_id>/opened")
+def api_reminder_opened(customer_id):
+    """Remember that a WhatsApp reminder was opened for this customer."""
+    if not db.log_reminder_opened(customer_id):
+        return jsonify(error="No such customer"), 404
+    return jsonify(ok=True)
 
 
 @app.get("/api/customers/<int:customer_id>/visits")

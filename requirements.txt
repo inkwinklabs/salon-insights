@@ -1,2 +1,6 @@
 # Python libraries this app needs. start.py installs them automatically.
 flask>=3.1,<4
+# Official Claude SDK, used only by the AI Insights button
+anthropic>=1.17,<2
+# Reads the API key from the .env file
+python-dotenv>=1.2,<2

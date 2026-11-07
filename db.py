@@ -48,6 +48,14 @@ CREATE TABLE IF NOT EXISTS visits (
     created_at   TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 
+-- When a WhatsApp reminder link was opened for a customer, so the owner
+-- doesn't message the same person twice by accident.
+CREATE TABLE IF NOT EXISTS reminder_log (
+    id           INTEGER PRIMARY KEY,
+    customer_id  INTEGER NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+    opened_at    TEXT    NOT NULL DEFAULT (datetime('now', 'localtime'))
+);
+
 -- Indexes are like a book's index: they make lookups by customer or date fast.
 CREATE INDEX IF NOT EXISTS idx_visits_customer ON visits(customer_id);
 CREATE INDEX IF NOT EXISTS idx_visits_date     ON visits(visit_date);
@@ -104,8 +112,11 @@ def clear_demo() -> None:
     path = DEMO_DB
     assert path != REAL_DB, "Safety stop: clear_demo must never touch the real database"
     with open_db(path) as conn:
+        conn.execute("DELETE FROM reminder_log")
         conn.execute("DELETE FROM visits")
         conn.execute("DELETE FROM customers")
+    # Saved AI insights described the old demo data, so they go too.
+    (DATA_DIR / "insights-demo.json").unlink(missing_ok=True)
 
 
 # ---------------------------------------------------------------- customers and visits
@@ -188,6 +199,26 @@ def visits_for_customer(customer_id: int) -> list[dict]:
             (customer_id,),
         ).fetchall()
     return [dict(r) for r in rows]
+
+
+# ---------------------------------------------------------------- reminders
+
+def log_reminder_opened(customer_id: int) -> bool:
+    """Note that a WhatsApp reminder was opened. False if there's no such customer."""
+    with open_db() as conn:
+        if not conn.execute("SELECT 1 FROM customers WHERE id = ?", (customer_id,)).fetchone():
+            return False
+        conn.execute("INSERT INTO reminder_log (customer_id) VALUES (?)", (customer_id,))
+    return True
+
+
+def last_reminder_dates() -> dict[int, str]:
+    """{customer id: when their last reminder was opened}"""
+    with open_db() as conn:
+        rows = conn.execute(
+            "SELECT customer_id, MAX(opened_at) AS last FROM reminder_log GROUP BY customer_id"
+        ).fetchall()
+    return {r["customer_id"]: r["last"] for r in rows}
 
 
 # ---------------------------------------------------------------- summaries
