@@ -240,18 +240,37 @@ def api_customer_visits(customer_id):
     return jsonify(visits=db.visits_for_customer(customer_id))
 
 
+def port_is_free(port: int) -> bool:
+    """True if nothing else on this laptop is using the port yet."""
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(("127.0.0.1", port)) != 0
+
+
 if __name__ == "__main__":
     settings = load_settings()
     port = settings["app"]["port"]
     url = f"http://127.0.0.1:{port}"
+    open_browser = "--no-browser" not in sys.argv
 
-    print(f"\n  {settings['salon']['name']} | Customer Insights")
-    print(f"  Open {url} in your browser. Press Ctrl+C to stop.\n")
+    if not port_is_free(port):
+        # Usually means the app is already running (e.g. start.bat clicked twice).
+        print(f"\n  The app seems to be running already. Open {url}", flush=True)
+        print(f"  (If it isn't, another program is using port {port}: change [app] port in settings.toml.)\n", flush=True)
+        if open_browser:
+            webbrowser.open(url)
+        sys.exit(0)
 
-    if "--no-browser" not in sys.argv:
+    print(f"\n  {settings['salon']['name']} | Customer Insights", flush=True)
+    print(f"  Open {url} in your browser. Press Ctrl+C to stop.\n", flush=True)
+
+    if open_browser:
         # Open the browser a moment after the server has started.
         threading.Timer(1.0, lambda: webbrowser.open(url)).start()
 
+    # Waitress is a small, reliable web server written in Python (it works the
+    # same on Windows). Flask's own server is only meant for development.
     # host="127.0.0.1" means only this laptop can open the app. Other phones or
     # computers on the same Wi-Fi cannot, which keeps customer data private.
-    app.run(host="127.0.0.1", port=port, debug=False)
+    from waitress import serve
+    serve(app, host="127.0.0.1", port=port, threads=4, _quiet=True)

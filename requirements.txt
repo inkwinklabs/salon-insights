@@ -4,3 +4,5 @@ flask>=3.1,<4
 anthropic>=1.17,<2
 # Reads the API key from the .env file
 python-dotenv>=1.2,<2
+# A proper web server (no "development server" warning), works on Windows too
+waitress>=3.0,<4
