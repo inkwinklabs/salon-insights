@@ -227,7 +227,10 @@ def ask_claude(summary_text: str, settings: dict) -> dict:
     text = next((b.text for b in response.content if b.type == "text"), None)
     if not text:
         raise InsightsError("The AI sent an empty reply. Please try again.")
-    reply = json.loads(text)
+    try:
+        reply = json.loads(text)
+    except json.JSONDecodeError:
+        raise InsightsError("The AI's reply couldn't be read. Please try again.")
     reply["model"] = response.model
     reply["usage"] = {"input_tokens": response.usage.input_tokens, "output_tokens": response.usage.output_tokens}
     return reply

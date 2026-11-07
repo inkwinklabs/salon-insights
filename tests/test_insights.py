@@ -144,3 +144,28 @@ class InsightsApiTests(InsightsTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class GarbledReplyTests(unittest.TestCase):
+    """A reply that isn't valid JSON gives a friendly message, not a crash."""
+
+    def test_garbled_reply(self):
+        fake_response = mock.Mock(stop_reason="end_turn", model="claude-sonnet-5-5",
+                                  content=[mock.Mock(type="text", text="this is {not json")])
+        fake_client = mock.Mock()
+        fake_client.beta.messages.create.return_value = fake_response
+        with mock.patch.object(insights.anthropic, "Anthropic", return_value=fake_client), \
+             mock.patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-placeholder"}):
+            with self.assertRaises(insights.InsightsError) as caught:
+                insights.ask_claude("{}", load_settings())
+        self.assertIn("couldn't be read", str(caught.exception))
+
+    def test_refusal_and_cut_off_replies(self):
+        for reason, words in [("refusal", "declined"), ("max_tokens", "cut off")]:
+            fake_client = mock.Mock()
+            fake_client.beta.messages.create.return_value = mock.Mock(stop_reason=reason, content=[])
+            with mock.patch.object(insights.anthropic, "Anthropic", return_value=fake_client), \
+                 mock.patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-placeholder"}):
+                with self.assertRaises(insights.InsightsError) as caught:
+                    insights.ask_claude("{}", load_settings())
+            self.assertIn(words, str(caught.exception))

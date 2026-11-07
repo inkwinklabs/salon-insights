@@ -162,3 +162,19 @@ class ApiTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class OddRequestTests(unittest.TestCase):
+    """Strange requests get a polite 400, never a crash (500)."""
+
+    def setUp(self):
+        use_temporary_databases(self)
+        self.client = app.test_client()
+
+    def test_json_list_instead_of_object(self):
+        self.assertEqual(self.client.post("/api/visits", json=[1, 2]).status_code, 400)
+        self.assertEqual(self.client.post("/api/mode", json=["demo"]).status_code, 400)
+
+    def test_broken_json(self):
+        r = self.client.post("/api/visits", data="{not json", content_type="application/json")
+        self.assertEqual(r.status_code, 400)

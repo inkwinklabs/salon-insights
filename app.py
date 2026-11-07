@@ -36,6 +36,12 @@ load_dotenv(BASE_DIR / ".env")
 app = Flask(__name__, static_folder=str(STATIC_DIR), static_url_path="/static")
 
 
+def json_body() -> dict:
+    """The JSON sent with a request, or {} if it's missing or not a {...} object."""
+    data = request.get_json(silent=True)
+    return data if isinstance(data, dict) else {}
+
+
 @app.before_request
 def only_json_for_changes():
     """Requests that CHANGE something (POST) must be sent as JSON.
@@ -85,7 +91,7 @@ def api_get_mode():
 @app.post("/api/mode")
 def api_set_mode():
     """Switch between real data (salon.db) and demo data (demo.db)."""
-    mode = (request.get_json() or {}).get("mode")
+    mode = json_body().get("mode")
     if mode not in db.DB_FILES:
         return jsonify(error="mode must be 'real' or 'demo'"), 400
     db.set_mode(mode)
@@ -118,7 +124,7 @@ def api_summary():
 @app.post("/api/visits")
 def api_add_visit():
     """Save a visit from the form. Answers 400 with per-field messages if something's wrong."""
-    data = request.get_json() or {}
+    data = json_body()
     phone = normalise_phone(data.get("phone"))
     existing = db.find_customer_by_phone(phone) if phone else None
 
