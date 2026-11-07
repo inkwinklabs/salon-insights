@@ -1,0 +1,2 @@
+# Python libraries this app needs. start.py installs them automatically.
+flask>=3.1,<4

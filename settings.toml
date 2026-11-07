@@ -1,0 +1,69 @@
+# ─────────────────────────────────────────────────────────────
+#  Salon settings. Edit this file, then restart the app.
+#  Lines starting with # are notes and are ignored.
+# ─────────────────────────────────────────────────────────────
+
+[salon]
+name     = "Demo Salon & Barbers"
+city     = "Bengaluru"
+currency = "₹"
+staff    = ["Ravi", "Priya", "Arjun", "Meena"]
+
+[app]
+# The web address will be http://127.0.0.1:<port>
+port = 8000
+
+[ai]
+# Which Claude model writes the insights. Change it here, not in the code.
+model      = "claude-sonnet-5-5"
+max_tokens = 1500
+
+[reminders]
+# A customer counts as a "regular" after this many visits.
+min_visits_for_regular = 3
+# A regular is "overdue" when the days since their last visit are more than
+# their usual gap between visits multiplied by this number (1.5 = 50% late).
+overdue_factor = 1.5
+
+# ── Services ────────────────────────────────────────────────
+# price            = usual price in rupees (can be changed per visit)
+# typical_gap_days = how often a customer usually comes back for it
+[[services]]
+name = "Haircut"
+price = 300
+typical_gap_days = 30
+
+[[services]]
+name = "Beard Trim"
+price = 150
+typical_gap_days = 14
+
+[[services]]
+name = "Haircut + Beard"
+price = 400
+typical_gap_days = 30
+
+[[services]]
+name = "Kids Haircut"
+price = 200
+typical_gap_days = 35
+
+[[services]]
+name = "Head Massage"
+price = 350
+typical_gap_days = 30
+
+[[services]]
+name = "Facial"
+price = 1200
+typical_gap_days = 45
+
+[[services]]
+name = "Hair Spa"
+price = 1000
+typical_gap_days = 45
+
+[[services]]
+name = "Hair Colouring"
+price = 1800
+typical_gap_days = 60

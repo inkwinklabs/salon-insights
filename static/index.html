@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Salon Insights</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1 id="salon-name">Salon Insights</h1>
+      <p class="subtitle">Customer Insights<span id="salon-city"></span></p>
+    </div>
+  </header>
+
+  <!-- The four main screens. Clicking a tab shows one and hides the rest. -->
+  <nav class="tabs" aria-label="Main">
+    <button class="tab active" data-screen="log">Log visit</button>
+    <button class="tab" data-screen="customers">Customers</button>
+    <button class="tab" data-screen="dashboard">Dashboard</button>
+    <button class="tab" data-screen="insights">AI Insights</button>
+  </nav>
+
+  <main>
+    <section id="screen-log" class="screen">
+      <h2>Log a visit</h2>
+      <p class="muted">The visit form arrives in stage 3. Services and prices below are read from <code>settings.toml</code>:</p>
+      <table class="table">
+        <thead><tr><th>Service</th><th class="num">Price</th><th class="num">Usually back after</th></tr></thead>
+        <tbody id="services-body"><tr><td colspan="3">Loading…</td></tr></tbody>
+      </table>
+      <p class="muted">Staff: <span id="staff-list">…</span></p>
+    </section>
+
+    <section id="screen-customers" class="screen" hidden>
+      <h2>Customers</h2>
+      <p class="muted">Customer list arrives in stage 3.</p>
+    </section>
+
+    <section id="screen-dashboard" class="screen" hidden>
+      <h2>Dashboard</h2>
+      <p class="muted">Charts arrive in stage 4.</p>
+    </section>
+
+    <section id="screen-insights" class="screen" hidden>
+      <h2>AI Insights</h2>
+      <p class="muted">AI insights and WhatsApp reminders arrive in stage 5 (model: <code id="ai-model">…</code>).</p>
+    </section>
+  </main>
+
+  <p id="error" class="error" hidden></p>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

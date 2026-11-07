@@ -1,0 +1,70 @@
+/* Colours are kept in one place (variables) so the look is easy to change. */
+:root {
+  --bg: #f6f4f1;
+  --card: #ffffff;
+  --text: #1f1d1a;
+  --muted: #6b665f;
+  --brand: #8a3b5c;
+  --brand-soft: #f3e6ec;
+  --border: #e4dfd8;
+  --danger: #b42318;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.topbar {
+  background: var(--brand);
+  color: #fff;
+  padding: 16px;
+}
+.topbar h1 { margin: 0; font-size: 1.4rem; }
+.subtitle { margin: 0; opacity: 0.85; font-size: 0.95rem; }
+
+/* Tabs scroll sideways on narrow phone screens instead of squashing. */
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 16px 0;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.tab {
+  border: 0;
+  background: none;
+  padding: 10px 14px;
+  font: inherit;
+  color: var(--muted);
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tab.active { color: var(--brand); border-bottom-color: var(--brand); font-weight: 600; }
+
+main { max-width: 960px; margin: 0 auto; padding: 16px; }
+
+.screen {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.screen h2 { margin-top: 0; }
+
+.muted { color: var(--muted); }
+.error { color: var(--danger); text-align: center; }
+
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); }
+.table th { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+.table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+code { background: var(--brand-soft); padding: 1px 5px; border-radius: 4px; }
