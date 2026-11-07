@@ -19,7 +19,9 @@ PATTERNS PLANTED FOR THE AI TO FIND
   - A small group of "premium" customers book the costliest services, so
     those services earn the most per visit.
   - 15 customers came only once.
-  - The business grows a little each month (new customers keep arriving).
+  - Regulars come mainly for haircuts and beard trims; head massages are add-ons.
+  - New customers arrive every month, but revenue dips after mid-year when the
+    overdue regulars stop coming (a "lost regulars cost you money" story).
 
 A fixed "random seed" means the same data comes out every time it's run on the
 same day, which makes it easy to check. Dates count back from today, so the
@@ -42,6 +44,9 @@ DAYS_OF_HISTORY = 182  # about 6 months
 # How likely a visit is on each weekday (Monday=0 ... Sunday=6).
 # Tuesday's 0.3 is the planted "quiet day".
 WEEKDAY_WEIGHT = [1.0, 0.3, 0.9, 1.0, 1.2, 1.8, 1.6]
+
+# What regulars mainly come for, and how often each is picked (bigger = more).
+MAIN_SERVICE_WEIGHTS = {"Haircut": 4, "Haircut + Beard": 3, "Beard Trim": 2, "Kids Haircut": 1}
 
 # How many customers in each group.
 GROUP_SIZES = {
@@ -157,14 +162,27 @@ class DemoDataMaker:
 
     # ------------------------------------------------------------ the groups
 
+    def main_service(self, regular_services: list[dict]) -> dict:
+        """What a regular mainly comes for: mostly haircuts, sometimes beard trims.
+
+        Head massage etc. stay as occasional add-ons. If settings.toml no longer
+        has these names, fall back to any cheap, frequent service.
+        """
+        options = [(self.service_by_name[n], w) for n, w in MAIN_SERVICE_WEIGHTS.items()
+                   if n in self.service_by_name]
+        if not options:
+            return self.rng.choice(regular_services)
+        services, weights = zip(*options)
+        return self.rng.choices(services, weights=weights)[0]
+
     def make_all(self) -> None:
         everyday = self.everyday_services
-        # The services regulars come back for most: cheap, frequent ones.
+        # Cheap, frequent services: the fallback if the usual names are missing.
         regular_services = [s for s in everyday if s["typical_gap_days"] <= 35]
 
         n = GROUP_SIZES["active_regular"]
         for i in range(n):
-            service = self.rng.choice(regular_services)
+            service = self.main_service(regular_services)
             gap = round(service["typical_gap_days"] * self.rng.uniform(0.8, 1.1))
             # They join steadily over the first 4 months, so the regular base
             # keeps growing (this is the "gentle growth" pattern).
@@ -174,9 +192,10 @@ class DemoDataMaker:
                 service, first, self.today, gap, staff, everyday))
 
         for _ in range(GROUP_SIZES["overdue_regular"]):
-            # Haircut-style regulars, every 3-4 weeks...
-            service = self.rng.choice([s for s in regular_services if s["typical_gap_days"] >= 30]
-                                      or regular_services)
+            # Haircut regulars, every 3-4 weeks...
+            haircuts = [self.service_by_name[n] for n in ("Haircut", "Haircut + Beard")
+                        if n in self.service_by_name]
+            service = self.rng.choice(haircuts or regular_services)
             gap = self.rng.randint(21, 30)
             first = self.start + timedelta(days=self.rng.randint(0, 20))
             # ...who suddenly stopped 60-100 days ago.
