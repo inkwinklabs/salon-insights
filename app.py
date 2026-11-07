@@ -15,12 +15,15 @@ Start it with:  python3 start.py
 import sys
 import threading
 import webbrowser
+from datetime import date
 
 from flask import Flask, jsonify, request, send_from_directory
 
 import db
+from analysis import build_customer_list
 from scripts.make_demo_data import load_demo_data
 from settings import BASE_DIR, load_settings
+from validation import normalise_phone, validate_visit
 
 STATIC_DIR = BASE_DIR / "static"
 
@@ -102,6 +105,49 @@ def api_demo_clear():
 def api_summary():
     """Headline numbers for whichever data (real or demo) is active."""
     return jsonify(mode=db.get_mode(), **db.summary_counts())
+
+
+# ---------------------------------------------------------------- visits and customers
+
+@app.post("/api/visits")
+def api_add_visit():
+    """Save a visit from the form. Answers 400 with per-field messages if something's wrong."""
+    data = request.get_json() or {}
+    phone = normalise_phone(data.get("phone"))
+    existing = db.find_customer_by_phone(phone) if phone else None
+
+    clean, errors = validate_visit(
+        data, load_settings(), db.get_mode(), date.today(), existing_customer=bool(existing)
+    )
+    if errors:
+        return jsonify(errors=errors), 400
+    return jsonify(db.add_visit(clean)), 201
+
+
+@app.get("/api/customers")
+def api_customers():
+    """Every customer with their stats (visits, last visit, average spend, status...)."""
+    settings = load_settings()
+    customers = build_customer_list(db.customer_visit_rows(), date.today(), settings["reminders"])
+    return jsonify(customers=customers, rules=settings["reminders"])
+
+
+@app.get("/api/customers/lookup")
+def api_customer_lookup():
+    """Used by the form: is this phone number an existing customer?"""
+    phone = normalise_phone(request.args.get("phone"))
+    if not phone:
+        return jsonify(found=False, valid=False)
+    customer = db.find_customer_by_phone(phone)
+    if not customer:
+        return jsonify(found=False, valid=True)
+    return jsonify(found=True, valid=True, **customer)
+
+
+@app.get("/api/customers/<int:customer_id>/visits")
+def api_customer_visits(customer_id):
+    """One customer's visit history, newest first."""
+    return jsonify(visits=db.visits_for_customer(customer_id))
 
 
 if __name__ == "__main__":

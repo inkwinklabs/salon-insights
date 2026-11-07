@@ -108,6 +108,79 @@ def clear_demo() -> None:
         conn.execute("DELETE FROM customers")
 
 
+# ---------------------------------------------------------------- customers and visits
+
+def find_customer_by_phone(phone: str) -> dict | None:
+    """The customer with this phone number (plus visit count and last visit), or None."""
+    with open_db() as conn:
+        row = conn.execute(
+            """
+            SELECT c.id, c.name,
+                   COUNT(DISTINCT v.visit_date) AS visits,   -- same day = one visit
+                   MAX(v.visit_date)            AS last_visit
+            FROM customers c
+            LEFT JOIN visits v ON v.customer_id = c.id
+            WHERE c.phone = ?
+            GROUP BY c.id
+            """,
+            (phone,),
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def add_visit(visit: dict) -> dict:
+    """Save one service line. Creates the customer first if the phone is new.
+
+    visit: phone, name, service, price, visit_date, staff (already checked).
+    A returning customer keeps their saved name, so a mistyped phone number
+    can't rename somebody else.
+    """
+    with open_db() as conn:
+        found = conn.execute(
+            "SELECT id, name FROM customers WHERE phone = ?", (visit["phone"],)
+        ).fetchone()
+        if found:
+            customer_id, name, is_new = found["id"], found["name"], False
+        else:
+            customer_id = conn.execute(
+                "INSERT INTO customers (name, phone, created_at) VALUES (?, ?, ?)",
+                (visit["name"], visit["phone"], visit["visit_date"]),
+            ).lastrowid
+            name, is_new = visit["name"], True
+
+        visit_id = conn.execute(
+            "INSERT INTO visits (customer_id, service, price, visit_date, staff) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (customer_id, visit["service"], visit["price"], visit["visit_date"], visit["staff"]),
+        ).lastrowid
+    return {"visit_id": visit_id, "customer_id": customer_id, "name": name, "new_customer": is_new}
+
+
+def customer_visit_rows() -> list[dict]:
+    """Every customer with every service line, in order. analysis.py turns this into stats."""
+    with open_db() as conn:
+        rows = conn.execute(
+            """
+            SELECT c.id, c.name, c.phone, v.visit_date, v.service, v.price
+            FROM customers c
+            LEFT JOIN visits v ON v.customer_id = c.id
+            ORDER BY c.id, v.visit_date, v.id
+            """
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def visits_for_customer(customer_id: int) -> list[dict]:
+    """One customer's history, newest first."""
+    with open_db() as conn:
+        rows = conn.execute(
+            "SELECT visit_date, service, price, staff FROM visits "
+            "WHERE customer_id = ? ORDER BY visit_date DESC, id DESC",
+            (customer_id,),
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
 # ---------------------------------------------------------------- summaries
 
 def summary_counts() -> dict:
