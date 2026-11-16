@@ -166,6 +166,9 @@ body {
 }
 .data-title { margin: 0; font-size: 1rem; }
 .data-card p { margin: 0; }
+/* "hidden" must always win. Without this, a rule like the one below
+   (display: flex) quietly un-hides things that the code has hidden. */
+[hidden] { display: none !important; }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
 .btn {
@@ -202,6 +205,20 @@ body {
   white-space: nowrap;
 }
 .tab.active { color: var(--brand-ink); border-bottom-color: var(--brand-ink); font-weight: 600; }
+/* Words that depend on mouse or finger: "Hover a bar" vs "Tap a bar". */
+.touch-only { display: none; }
+@media (hover: none) {
+  .mouse-only { display: none; }
+  .touch-only { display: inline; }
+}
+@media (max-width: 640px) {
+  /* A phone screen is small: show the Data card only on the first tab,
+     so the other screens start right under the tabs. */
+  body:not([data-screen="log"]) .data-card { display: none; }
+  /* On a phone, all four tabs share the width equally so none is cut off. */
+  .tabs { padding: 6px 6px 0; gap: 0; }
+  .tab { flex: 1; padding: 10px 2px; font-size: 0.92rem; text-align: center; }
+}
 
 main { max-width: 960px; margin: 0 auto; padding: 16px; }
 
@@ -432,6 +449,9 @@ code { background: var(--brand-soft); padding: 1px 5px; border-radius: 4px; }
   margin-bottom: 14px;
 }
 .privacy-note p { margin: 0 0 4px; }
+.key-box { margin: 0 0 14px; }
+.key-body { display: flex; flex-direction: column; gap: 10px; padding-top: 10px; max-width: 520px; }
+.key-actions { display: flex; align-items: center; gap: 14px; }
 .preview-body pre {
   white-space: pre-wrap;
   word-break: break-word;

@@ -14,7 +14,7 @@
     } catch (e) { /* storage blocked: just follow the laptop */ }
   </script>
 </head>
-<body>
+<body data-screen="log">
   <header class="topbar">
     <div>
       <h1 id="salon-name">Salon Insights</h1>
@@ -200,7 +200,7 @@
         <div class="chart-grid">
           <article class="chart-card">
             <h3>Visits by day of the week</h3>
-            <p class="hint">One visit = one customer on one day. Hover a bar for revenue.</p>
+            <p class="hint">One visit = one customer on one day. <span class="mouse-only">Hover</span><span class="touch-only">Tap</span> a bar for revenue.</p>
             <div class="chart-box" style="height: 250px"><canvas id="chart-weekdays" role="img"></canvas></div>
             <p class="chart-caption" id="caption-weekdays"></p>
             <details class="table-view"><summary>Show as table</summary><div id="table-weekdays"></div></details>
@@ -234,7 +234,7 @@
       <div class="privacy-note">
         <p><strong>Only numbers are sent to the AI:</strong> counts, totals, averages and days since
           last visit. No customer names, phone numbers or staff names. Names are added to messages
-          later, here on this laptop.</p>
+          later, here on this <span class="device-word">laptop</span>.</p>
         <details id="preview-box" class="table-view">
           <summary>Show exactly what will be sent</summary>
           <div id="preview-body" class="preview-body">Loading…</div>
@@ -245,6 +245,24 @@
         <button id="btn-insights" class="btn">Get AI insights</button>
         <p class="hint">Each press is one paid AI request (model <code id="ai-model">…</code>). It takes about 10–30 seconds.</p>
       </div>
+      <!-- Phone only (the laptop keeps its key in the .env file). Shown by insights.js. -->
+      <details id="ai-key-box" class="table-view key-box" hidden>
+        <summary>AI key: <span id="ai-key-state">not added yet</span></summary>
+        <div class="key-body">
+          <div class="field">
+            <label for="ai-key-input">Claude API key (starts with sk-ant-)</label>
+            <input id="ai-key-input" type="password" autocomplete="off" autocapitalize="off"
+                   spellcheck="false" placeholder="Paste the key here">
+          </div>
+          <div class="key-actions">
+            <button id="ai-key-save" class="btn" type="button">Save key</button>
+            <button id="ai-key-remove" class="link-btn" type="button" hidden>Remove key</button>
+          </div>
+          <p id="ai-key-message" class="hint" role="status"></p>
+          <p class="hint">The key is locked away on this phone by Android. It is never shown again,
+            and it only ever travels to Claude, together with the numbers-only summary.</p>
+        </div>
+      </details>
       <p id="insights-status" class="form-message" role="status" hidden></p>
 
       <div id="insights-result" hidden>

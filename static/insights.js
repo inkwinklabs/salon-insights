@@ -80,6 +80,47 @@ document.getElementById("btn-insights").addEventListener("click", (e) => {
   });
 });
 
+// ================================================================ AI key (phone only)
+// A laptop keeps the key in the .env file. The Android app has no such file,
+// so the owner pastes the key here once. The server only ever tells us
+// yes/no ("is a key saved?"); the key itself never comes back to the screen.
+
+function showKeyState(saved) {
+  document.getElementById("ai-key-state").textContent = saved ? "saved on this phone ✓" : "not added yet";
+  document.getElementById("ai-key-remove").hidden = !saved;
+}
+
+async function saveAIKey(key) {
+  const message = document.getElementById("ai-key-message");
+  const r = await postJSON("/api/ai-key", { key });
+  if (!r.ok) {
+    message.textContent = r.data.error || "Could not save the key.";
+    message.className = "field-error";
+    return;
+  }
+  document.getElementById("ai-key-input").value = "";
+  message.textContent = r.data.ai_key_saved ? "Key saved." : "Key removed.";
+  message.className = "hint-good";
+  showKeyState(r.data.ai_key_saved);
+  // Job done: fold the box away so the insights are easy to reach.
+  if (r.data.ai_key_saved) setTimeout(() => (document.getElementById("ai-key-box").open = false), 1200);
+}
+
+startUpSteps.push(() => {
+  if (!app.settings.on_phone) return;
+  document.querySelectorAll(".device-word").forEach((el) => (el.textContent = "phone"));
+  const box = document.getElementById("ai-key-box");
+  box.hidden = false;
+  box.open = !app.settings.ai_key_saved;      // open it when there's something to do
+  showKeyState(app.settings.ai_key_saved);
+  document.getElementById("ai-key-save").addEventListener("click", (e) =>
+    withBusyButton(e.currentTarget, () => saveAIKey(document.getElementById("ai-key-input").value.trim())));
+  document.getElementById("ai-key-remove").addEventListener("click", (e) => {
+    if (!confirm("Remove the AI key from this phone?")) return;
+    withBusyButton(e.currentTarget, () => saveAIKey(""));
+  });
+});
+
 // "Show exactly what will be sent": fetched fresh each time it's opened.
 document.getElementById("preview-box").addEventListener("toggle", async (e) => {
   if (!e.target.open) return;

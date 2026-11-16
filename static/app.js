@@ -77,6 +77,7 @@ const onTabOpen = {};
 function openTab(name) {
   document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.dataset.screen === name));
   document.querySelectorAll(".screen").forEach((s) => (s.hidden = s.id !== "screen-" + name));
+  document.body.dataset.screen = name;   // lets the styles know which tab is open (used on phones)
   if (onTabOpen[name]) onTabOpen[name]();
 }
 
