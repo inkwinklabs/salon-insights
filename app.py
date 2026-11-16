@@ -12,6 +12,8 @@ could later serve an Android app or an online version.
 Start it with:  python3 start.py
 """
 
+import hmac
+import os
 import sys
 import threading
 import webbrowser
@@ -34,6 +36,25 @@ STATIC_DIR = BASE_DIR / "static"
 load_dotenv(BASE_DIR / ".env")
 
 app = Flask(__name__, static_folder=str(STATIC_DIR), static_url_path="/static")
+
+# True when this same code is running inside the Android app (see android_main.py).
+ON_PHONE = bool(os.environ.get("SALON_ON_PHONE"))
+
+
+@app.before_request
+def only_our_own_app_on_a_phone():
+    """On a phone, only our own app screen may talk to this server.
+
+    Why: on Android every app shares the address 127.0.0.1, so without this
+    check any other app on the phone could ask for the customer list. The
+    Android app makes a long random pass-code each time it starts and gives
+    it to its own screen as a cookie. No cookie, no answer.
+    """
+    if ON_PHONE:
+        expected = os.environ.get("SALON_APP_TOKEN", "")
+        given = request.cookies.get("salon_token", "")
+        if not expected or not hmac.compare_digest(given, expected):
+            return jsonify(error="Not allowed"), 403
 
 
 def json_body() -> dict:
@@ -72,7 +93,29 @@ def api_settings():
         salon=s["salon"],
         services=s["services"],
         ai_model=s["ai"]["model"],
+        # The screens use these two to show the "AI key" box on a phone.
+        # Only yes/no is sent: the key itself never goes back to the screen.
+        on_phone=ON_PHONE,
+        ai_key_saved=bool(os.environ.get("ANTHROPIC_API_KEY")),
     )
+
+
+@app.post("/api/ai-key")
+def api_save_ai_key():
+    """Phone only: save (or, if empty, remove) the owner's Claude API key.
+
+    A laptop keeps the key in the .env file. A phone has no such file, so the
+    owner pastes the key into the app once and Android locks it away
+    (see KeyVault.kt). The key is never sent back, printed or logged.
+    """
+    if not ON_PHONE:
+        return jsonify(error="On a laptop the key lives in the .env file"), 404
+    key = str(json_body().get("key") or "").strip()
+    if key and (not key.startswith("sk-ant-") or len(key) > 300 or not key.isascii() or " " in key):
+        return jsonify(error="That doesn't look like a Claude API key. It should start with sk-ant-"), 400
+    import android_main
+    android_main.save_api_key(key)
+    return jsonify(ok=True, ai_key_saved=bool(key))
 
 
 @app.get("/api/health")
