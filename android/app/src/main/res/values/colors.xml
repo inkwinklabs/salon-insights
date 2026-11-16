@@ -1,0 +1,5 @@
+<resources>
+    <!-- The same plum as the laptop app (the brand colour in static/style.css) -->
+    <color name="brand">#8A3B5C</color>
+    <color name="white">#FFFFFF</color>
+</resources>

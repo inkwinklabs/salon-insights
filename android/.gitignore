@@ -1,0 +1,9 @@
+# Build output and per-computer settings (recreated automatically)
+.gradle/
+build/
+local.properties
+*.apk
+*.aab
+# Signing keys must never be committed
+*.jks
+*.keystore
