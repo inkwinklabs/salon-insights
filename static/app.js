@@ -69,6 +69,18 @@ function showError(message) {
   box.hidden = !message;
 }
 
+// On a phone the keyboard covers the bottom half of the screen. When it opens
+// (the visible area shrinks), bring the box being typed in to the middle,
+// so the box and the hint under it stay in view.
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", () => {
+    const box = document.activeElement;
+    if (box && ["INPUT", "TEXTAREA", "SELECT"].includes(box.tagName)) {
+      box.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+  });
+}
+
 // ================================================================ tabs
 
 // Other files register what to do when their tab opens, e.g. reload the list.

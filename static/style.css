@@ -212,7 +212,13 @@ body {
   .touch-only { display: inline; }
 }
 @media (max-width: 640px) {
-  /* A phone screen is small: show the Data card only on the first tab,
+  /* A phone screen is small, and the keyboard takes half of it:
+     keep the top bar and the demo banner slim. */
+  .topbar { padding: 10px 16px; gap: 8px; }
+  .topbar h1 { font-size: 1.15rem; }
+  .topbar .subtitle { font-size: 0.8rem; }
+  .demo-banner { padding: 4px 12px; font-size: 0.85rem; }
+  /* Show the Data card only on the first tab,
      so the other screens start right under the tabs. */
   body:not([data-screen="log"]) .data-card { display: none; }
   /* On a phone, all four tabs share the width equally so none is cut off. */
