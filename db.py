@@ -10,13 +10,16 @@ Two separate database files keep demo data and real data apart:
 Which one is in use (the "mode") is saved in data/mode.txt.
 """
 
+import os
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
 
 from settings import BASE_DIR
 
-DATA_DIR = BASE_DIR / "data"
+# On the laptop the data folder sits inside the project. The Android app sets
+# SALON_DATA_DIR to its own private storage, which other apps cannot read.
+DATA_DIR = Path(os.environ.get("SALON_DATA_DIR") or BASE_DIR / "data")
 REAL_DB = DATA_DIR / "salon.db"
 DEMO_DB = DATA_DIR / "demo.db"
 MODE_FILE = DATA_DIR / "mode.txt"
