@@ -21,10 +21,25 @@ import os
 import re
 from datetime import date, datetime
 
-import anthropic
+try:
+    import anthropic                    # the official Claude library (laptop)
+except ImportError:
+    # Inside the Android app the official library can't be installed, so a
+    # small stand-in with the same names makes the same request (claude_http.py).
+    import claude_http as anthropic
 
 import db
 from analysis import build_customer_list, build_dashboard
+
+# Where the owner fixes an API key problem depends on the device: on the
+# laptop the key lives in the .env file, on the phone it is typed into the app.
+if os.environ.get("SALON_ON_PHONE"):
+    KEY_HELP = {"missing": "No API key yet. Add one under “AI key” on this screen.",
+                "rejected": "The API key was not accepted. Check it under “AI key” on this screen."}
+else:
+    KEY_HELP = {"missing": "No API key found. Put ANTHROPIC_API_KEY=... in the .env file "
+                           "(see .env.example), then restart the app.",
+                "rejected": "The API key in .env was not accepted. Check it, then restart the app."}
 
 # Blanks a reminder template may use. The app fills them in locally.
 TEMPLATE_BLANKS = {"name", "service", "salon", "days"}
@@ -181,8 +196,7 @@ INSIGHTS_SCHEMA = {
 def ask_claude(summary_text: str, settings: dict) -> dict:
     """Send the (already checked) summary to Claude and return its parsed reply."""
     if not os.environ.get("ANTHROPIC_API_KEY"):
-        raise InsightsError("No API key found. Put ANTHROPIC_API_KEY=... in the .env file "
-                            "(see .env.example), then restart the app.")
+        raise InsightsError(KEY_HELP["missing"])
     ai = settings["ai"]
     request = {
         "model": ai["model"],
@@ -205,7 +219,7 @@ def ask_claude(summary_text: str, settings: dict) -> dict:
     try:
         response = client.beta.messages.create(**request)
     except anthropic.AuthenticationError:
-        raise InsightsError("The API key in .env was not accepted. Check it, then restart the app.")
+        raise InsightsError(KEY_HELP["rejected"])
     except anthropic.PermissionDeniedError:
         raise InsightsError("This API key isn't allowed to use that model.")
     except anthropic.NotFoundError:
