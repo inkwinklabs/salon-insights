@@ -35,6 +35,11 @@ These rules apply to anyone (human or AI) working in this project.
 - The server listens on `127.0.0.1` only, so other devices on the Wi-Fi can't reach it.
 - The screens talk to the server only through `/api/...` JSON endpoints. This
   keeps the door open for an Android app or online version later.
+- **The Android app (`android/`) runs this same code; never fork it.** Phone-only
+  behaviour hangs off `SALON_ON_PHONE` (see `android_main.py`). On a phone the API key
+  is stored only by `KeyVault.kt` (Android Keystore) and is never sent back to the
+  screens, and every request must carry the app's pass-code (`app.py`).
+  Build with `cd android && ./gradlew assembleDebug`.
 - Keep code beginner-friendly: short functions, plain names, comments that
   explain *why*.
 - Colours live only as tokens at the top of `static/style.css`, with a light

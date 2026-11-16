@@ -86,6 +86,35 @@ counts as a **regular** (`min_visits_for_regular`) and when they're **overdue**
 
 The tests use throwaway databases, so they never touch your real or demo data.
 
+## The Android app
+
+The same app also runs on an Android phone, with no laptop and no internet server.
+Nothing was rewritten: the Android app is a full-screen web view showing the same
+screens, with the same Python code running inside the app (a tool called
+[Chaquopy](https://chaquo.com/chaquopy/) puts Python on the phone). The project is in `android/`.
+
+**Build it** (needs a Java JDK 17 and the Android SDK; Android Studio installs both):
+
+```
+cd android
+./gradlew assembleDebug
+```
+
+The app file appears at `android/app/build/outputs/apk/debug/app-debug.apk`.
+Install it on a phone or emulator with `adb install -r <that file>`.
+
+**What is different on a phone**
+
+| | Laptop | Phone |
+|---|---|---|
+| Data | `data/` folder in the project | the app's private storage (other apps can't read it) |
+| AI key | `.env` file | typed once under **AI Insights → AI key**, then locked away by Android's Keystore |
+| Claude library | official `anthropic` library | `claude_http.py`, a small stand-in (the official one has no Android build yet) |
+| Who can reach the server | only this laptop (`127.0.0.1`) | only this app: every request needs a random pass-code made at start-up |
+| Settings | edit `settings.toml` | built into the app when it is built (a settings screen is on the to-do list) |
+
+Only numbers go to the AI on the phone too. That rule lives in `insights.py`, which is the same file on both.
+
 ## More
 
 - `PLAN.md`: why we picked these tools and how the pieces fit

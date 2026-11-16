@@ -21,7 +21,7 @@ on purpose.
 - [ ] Decide whether it stays on the laptop (simplest, most private) or goes online (works from a phone or several branches).
 - [ ] If online: a proper web server instead of Flask's built-in one, HTTPS, login (see 1), and a hosted database (only `db.py` needs to change).
 - [ ] Hosting in India, or check where the data will be stored.
-- [ ] An Android app later: the screens already work on a phone and talk to the server only through `/api/...`.
+- [x] An Android app: done (see `android/` and the README). It runs entirely on the phone, so it needs no hosting.
 
 ## 4. Customer consent for WhatsApp, and India's data protection law (DPDP Act, 2023)
 Not legal advice. Have a lawyer check this before selling.
@@ -40,6 +40,14 @@ Each "Get AI insights" press is one request to Claude. With the demo data it use
 - [ ] **Option B: the salon brings its own key.** Simple, but harder for a non-technical owner.
 - [ ] Either way: show a monthly count of AI presses, and set a spending limit in the Anthropic Console.
 - [ ] The API key must never be inside the app's files that ship to the salon (today it lives in `.env`, which is not committed).
+
+## 5b. The Android app, before a real salon uses it
+- [ ] **A settings screen.** On the phone, salon name, services, prices and staff are fixed when the app is built. The owner needs to edit them in the app.
+- [ ] **Backups.** Phone data lives only inside the app (and `allowBackup` is off on purpose). Add "Export backup" to a file the owner chooses, and "Restore". Uninstalling the app deletes the data.
+- [ ] **A signed release build** (today's file is a debug build for testing), and a decision on how to deliver it: Play Store listing or a direct file.
+- [ ] **App lock** with the phone's fingerprint or PIN (see 1).
+- [ ] Test on a few real, cheaper phones, and on Android 7–9 where the built-in web view is older.
+- [ ] Phone and laptop each keep their own data. Sharing between them needs the online version (see 3).
 
 ## 6. Pricing ideas
 - **One-time setup fee** (e.g. ₹3,000–₹5,000) for install, entering services and staff, and training.

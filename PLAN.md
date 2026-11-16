@@ -87,6 +87,8 @@ comments, so an owner can edit it in Notepad.
 5. ✅ AI insights + WhatsApp reminders + `READY_TO_SELL.md` (numbers-only summary, privacy check, preview, editable template)
 6. ✅ Bug fixes, polish, final walkthrough (Waitress server, day-first date picker, phone cards, dark mode)
 
+7. ✅ Android app (episode 2): the same code inside a phone app. See section 8.
+
 ## 7. Folder layout (end goal)
 
 ```
@@ -100,5 +102,39 @@ salon-insights/
   scripts/          demo data generator (stage 2)
   static/           the screens (HTML, CSS, JS)
   data/             database files (not committed to git)
+  claude_http.py    stand-in for the Claude library on Android (stage 7)
+  android_main.py   start-up used only by the Android app (stage 7)
+  android/          the Android project: build files + 3 small Kotlin files (stage 7)
   CLAUDE.md  PLAN.md  README.md  READY_TO_SELL.md
 ```
+
+
+## 8. The Android app (stage 7)
+
+### Options compared
+
+| Option | What it is | Good | Not so good |
+|---|---|---|---|
+| **A. Same Python inside the app (Chaquopy) + a web view** | The phone runs the same server and shows the same screens | No rewrite: one codebase for laptop and phone. Works with no laptop, no hosting, no internet (except the AI button). Data stays on the phone. | The app is bigger (about 39 MB, as it carries Python). One library (`anthropic`) has no Android build. |
+| B. Thin app that opens the laptop's server over Wi-Fi | A web view pointed at the laptop | Tiny app, quickest to make | Only works while the laptop is on and nearby. The server would have to accept other devices, which needs a login first. |
+| C. Put the server online + app | Host Flask on the internet | Works anywhere, several phones share data | Needs hosting, login and HTTPS (all in `READY_TO_SELL.md`, not built yet). Customer data leaves the salon. |
+| D. Rewrite natively (Kotlin) | A new app from scratch | Smallest, most "native" feel | A full rewrite: two codebases to keep in step. Exactly what the plan said to avoid. |
+
+### Decision: **Option A**
+
+- **It keeps the promise from section 1:** "Android later without a full rewrite". Every Python
+  file and every screen is copied into the app unchanged by the build (`android/app/build.gradle.kts`).
+- **It suits a small salon:** many owners have a phone but no laptop. Nothing to host, nothing to pay monthly.
+- **Privacy stays simple:** the data never leaves the phone; only the numbers-only summary goes to the AI.
+
+### What had to change for a phone, and why
+
+1. **Where data lives.** `db.py` reads `SALON_DATA_DIR`, so the phone can use its private app storage.
+2. **The Claude library.** `anthropic` needs parts with no Android build, so `claude_http.py` makes the same
+   request with Python's built-in tools. `insights.py` uses whichever one is available.
+3. **The API key.** No `.env` on a phone: the owner pastes the key once and `KeyVault.kt` encrypts it
+   with the Android Keystore. The screens are only ever told yes/no ("is a key saved?").
+4. **Other apps on the phone.** On Android every app can reach `127.0.0.1`, so the server refuses any
+   request that doesn't carry this run's random pass-code (`app.py`), which only our web view is given.
+5. **Phone polish.** Four tabs that fit, a slim top bar, the typing box kept above the keyboard, Android's
+   own "Are you sure?" dialogs, WhatsApp links handed to the phone.
